@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "node --env-file-if-exists=.env server.mjs",
+    "start": "node --env-file-if-exists=.env app.cjs",
     "voice:sync": "node --env-file-if-exists=.env server/sync-voice.mjs",
     "test": "node --test tests/*.test.mjs"
   },
