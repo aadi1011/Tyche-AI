@@ -1,7 +1,36 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
+import { spawn } from 'node:child_process';
+import { createInterface } from 'node:readline';
 import { createSiteServer, retrieveKnowledge } from '../server.mjs';
+
+test('hosting entry starts both directly and when loaded by a CommonJS launcher', { timeout: 10000 }, async () => {
+  for (const args of [['app.cjs'], ['--input-type=commonjs', '--eval', "require('./app.cjs')"]]) {
+    const child = spawn(process.execPath, args, { cwd: new URL('..', import.meta.url), env: { ...process.env, PORT: '0', HOST: '127.0.0.1' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    const lines = createInterface({ input: child.stdout });
+    const exited = once(child, 'exit');
+    let stderr = '';
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    try {
+      const ready = new Promise((resolve, reject) => {
+        lines.on('line', line => {
+          const match = line.match(/^tyche\.ai listening on 127\.0\.0\.1:(\d+)$/);
+          if (match) resolve(`http://127.0.0.1:${match[1]}`);
+        });
+        child.once('error', reject);
+        child.once('exit', code => reject(new Error(`Hosting entry exited with ${code}: ${stderr}`)));
+      });
+      const base = await ready;
+      assert.equal((await fetch(base)).status, 200);
+      assert.equal((await fetch(`${base}/.env`)).status, 404);
+    } finally {
+      lines.close();
+      child.kill();
+      await exited;
+    }
+  }
+});
 
 async function withServer(options, run) {
   const server = createSiteServer(options);
