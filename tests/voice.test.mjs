@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import { createVoiceService, loadVoicePrompt, buildVoiceConfiguration, voiceEvents } from '../server/voice.mjs';
-import { createSiteServer } from '../server.mjs';
+import { createSiteServer } from '../server/site.mjs';
 
 const request = { method: 'POST', headers: { host: 'localhost', 'content-type': 'application/json' }, socket: { remoteAddress: '127.0.0.1' } };
 
