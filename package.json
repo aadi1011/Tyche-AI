@@ -1,0 +1,16 @@
+{
+  "name": "tyche-ai-website",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "voice:sync": "node --env-file-if-exists=.env server/sync-voice.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@elevenlabs/client": "1.30.0"
+  }
+}
