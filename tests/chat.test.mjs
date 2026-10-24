@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { createSiteServer, retrieveKnowledge } from '../server.mjs';
+import { createSiteServer, retrieveKnowledge } from '../server/site.mjs';
 
 test('hosting entry starts both directly and when loaded by a CommonJS launcher', { timeout: 10000 }, async () => {
-  for (const args of [['app.cjs'], ['--input-type=commonjs', '--eval', "require('./app.cjs')"]]) {
+  for (const args of [['server.mjs'], ['--input-type=module', '--eval', "await import('./server.mjs')"], ['app.cjs'], ['--input-type=commonjs', '--eval', "require('./app.cjs')"]]) {
     const child = spawn(process.execPath, args, { cwd: new URL('..', import.meta.url), env: { ...process.env, PORT: '0', HOST: '127.0.0.1' }, stdio: ['ignore', 'pipe', 'pipe'] });
     const lines = createInterface({ input: child.stdout });
     const exited = once(child, 'exit');
